@@ -1,0 +1,1192 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VinAI Match - AI-Powered Wine Pairing System</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/animate.css@4.1.1/animate.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;500;600;700&family=Raleway:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #722F37;
+            --secondary: #A67C52;
+            --light: #F5F0E6;
+            --dark: #1E1A19;
+            --accent: #D4AF37;
+        }
+        
+        body {
+            font-family: 'Raleway', sans-serif;
+            background-color: var(--light);
+            color: var(--dark);
+            min-height: 100vh;
+        }
+        
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Playfair Display', serif;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-primary:hover {
+            background-color: #5c252c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .btn-secondary {
+            background-color: var(--secondary);
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border-radius: 0.375rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+        
+        .btn-secondary:hover {
+            background-color: #8c6845;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card {
+            background-color: white;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+        }
+        
+        .card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-5px);
+        }
+        
+        .wine-card {
+            border-left: 4px solid var(--primary);
+            background-color: white;
+            transition: all 0.3s ease;
+        }
+        
+        .wine-card:hover {
+            box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        }
+        
+        .wine-red {
+            border-left-color: #722F37;
+        }
+        
+        .wine-white {
+            border-left-color: #D4AF37;
+        }
+        
+        .wine-rose {
+            border-left-color: #E8A79B;
+        }
+        
+        .wine-sparkling {
+            border-left-color: #BDC3C7;
+        }
+        
+        .quiz-option {
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: all 0.2s ease;
+        }
+        
+        .quiz-option:hover {
+            border-color: var(--secondary);
+        }
+        
+        .quiz-option.selected {
+            border-color: var(--primary);
+            background-color: rgba(114, 47, 55, 0.1);
+        }
+        
+        .progress-bar {
+            height: 4px;
+            background-color: var(--secondary);
+            transition: width 0.5s ease;
+        }
+        
+        .rating-star {
+            color: #D4AF37;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .rating-star:hover {
+            transform: scale(1.2);
+        }
+        
+        .section {
+            opacity: 0;
+            transition: all 0.5s ease;
+            display: none;
+            transform: translateY(20px);
+        }
+        
+        .section.active {
+            opacity: 1;
+            display: block;
+            transform: translateY(0);
+        }
+        
+        .wine-badge {
+            background-color: var(--primary);
+            color: white;
+            padding: 0.25rem 0.5rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        .wine-region {
+            color: var(--secondary);
+            font-weight: 600;
+        }
+        
+        .nav-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background-color: #ccc;
+            margin: 0 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .nav-dot.active {
+            background-color: var(--primary);
+            transform: scale(1.2);
+        }
+        
+        .feedback-btn {
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        
+        .feedback-btn:hover {
+            transform: scale(1.1);
+        }
+        
+        .feedback-btn.active {
+            color: var(--primary);
+        }
+        
+        .app-container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        .gradient-bg {
+            background: linear-gradient(135deg, var(--light) 0%, white 100%);
+        }
+
+        .pulsate {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% {
+                opacity: 1;
+            }
+            50% {
+                opacity: 0.6;
+            }
+            100% {
+                opacity: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container px-4 py-8 md:px-8 lg:px-12">
+        <!-- Header -->
+        <header class="mb-8 text-center">
+            <div class="flex items-center justify-center mb-2">
+                <i class="fas fa-wine-glass-alt text-4xl text-primary mr-3" style="color: var(--primary);"></i>
+                <h1 class="text-4xl md:text-5xl font-bold text-primary" style="color: var(--primary);">VinAI Match</h1>
+            </div>
+            <p class="text-lg md:text-xl text-gray-600 italic">Elevate your dining experience with AI-powered wine pairings</p>
+        </header>
+        
+        <!-- Progress Bar -->
+        <div class="w-full mb-8 bg-gray-200 rounded-full h-1">
+            <div id="progressBar" class="progress-bar rounded-full" style="width: 10%;"></div>
+        </div>
+        
+        <!-- Navigation Dots -->
+        <div class="flex justify-center mb-8">
+            <div class="nav-dot active" data-section="1"></div>
+            <div class="nav-dot" data-section="2"></div>
+            <div class="nav-dot" data-section="3"></div>
+            <div class="nav-dot" data-section="4"></div>
+            <div class="nav-dot" data-section="5"></div>
+        </div>
+        
+        <!-- Welcome Section -->
+        <section id="section1" class="section active mb-12">
+            <div class="card p-8 gradient-bg">
+                <h2 class="text-3xl font-bold mb-6 text-center">Welcome to VinAI Match</h2>
+                <p class="text-lg mb-6 text-center">Discover the perfect wine pairings based on your personal taste preferences and meal selections.</p>
+                
+                <div class="flex flex-col md:flex-row justify-center gap-8 mb-10">
+                    <div class="flex flex-col items-center p-4">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-full bg-primary mb-4">
+                            <i class="fas fa-list-alt text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Taste Profile Quiz</h3>
+                        <p class="text-center text-gray-600">Answer a few simple questions about your flavor preferences</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center p-4">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-full bg-primary mb-4">
+                            <i class="fas fa-robot text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">AI Recommendations</h3>
+                        <p class="text-center text-gray-600">Get personalized wine suggestions based on your unique profile</p>
+                    </div>
+                    
+                    <div class="flex flex-col items-center p-4">
+                        <div class="w-16 h-16 flex items-center justify-center rounded-full bg-primary mb-4">
+                            <i class="fas fa-star text-2xl text-white"></i>
+                        </div>
+                        <h3 class="text-xl font-semibold mb-2">Rate & Improve</h3>
+                        <p class="text-center text-gray-600">Provide feedback to improve future recommendations</p>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center">
+                    <button id="startBtn" class="btn-primary flex items-center">
+                        <span>Start Your Wine Journey</span>
+                        <i class="fas fa-chevron-right ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Taste Profile Quiz Section -->
+        <section id="section2" class="section mb-12">
+            <div class="card p-8 gradient-bg">
+                <h2 class="text-3xl font-bold mb-6 text-center">Taste Profile Quiz</h2>
+                <p class="text-lg mb-8 text-center">Tell us about your preferences so we can find your perfect wine match.</p>
+                
+                <div id="quizContainer">
+                    <!-- Question 1 -->
+                    <div class="quiz-question mb-10">
+                        <h3 class="text-xl font-semibold mb-4">What type of meal are you planning?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="meat">
+                                <div class="flex items-center">
+                                    <i class="fas fa-drumstick-bite text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Red Meat</h4>
+                                        <p class="text-sm text-gray-600">Beef, lamb, or game meat</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="poultry">
+                                <div class="flex items-center">
+                                    <i class="fas fa-drumstick text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Poultry</h4>
+                                        <p class="text-sm text-gray-600">Chicken, turkey, or duck</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="seafood">
+                                <div class="flex items-center">
+                                    <i class="fas fa-fish text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Seafood</h4>
+                                        <p class="text-sm text-gray-600">Fish, shellfish, or crustaceans</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="vegetarian">
+                                <div class="flex items-center">
+                                    <i class="fas fa-leaf text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Vegetarian</h4>
+                                        <p class="text-sm text-gray-600">Plant-based dishes</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 2 -->
+                    <div class="quiz-question mb-10">
+                        <h3 class="text-xl font-semibold mb-4">What flavor profile do you prefer?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="bold">
+                                <div class="flex items-center">
+                                    <i class="fas fa-bolt text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Bold & Intense</h4>
+                                        <p class="text-sm text-gray-600">Strong, powerful flavors</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="fruity">
+                                <div class="flex items-center">
+                                    <i class="fas fa-apple-alt text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Fruity & Vibrant</h4>
+                                        <p class="text-sm text-gray-600">Bright fruit-forward flavors</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="earthy">
+                                <div class="flex items-center">
+                                    <i class="fas fa-mountain text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Earthy & Complex</h4>
+                                        <p class="text-sm text-gray-600">Subtle nuanced flavors</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="light">
+                                <div class="flex items-center">
+                                    <i class="fas fa-feather text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Light & Delicate</h4>
+                                        <p class="text-sm text-gray-600">Soft, elegant flavors</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 3 -->
+                    <div class="quiz-question mb-10">
+                        <h3 class="text-xl font-semibold mb-4">What is your sweetness preference?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="dry">
+                                <div class="flex items-center">
+                                    <i class="fas fa-tint-slash text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Dry</h4>
+                                        <p class="text-sm text-gray-600">No sweetness</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="medium">
+                                <div class="flex items-center">
+                                    <i class="fas fa-balance-scale text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Medium</h4>
+                                        <p class="text-sm text-gray-600">Hint of sweetness</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="sweet">
+                                <div class="flex items-center">
+                                    <i class="fas fa-candy-cane text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Sweet</h4>
+                                        <p class="text-sm text-gray-600">Noticeable sweetness</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 4 -->
+                    <div class="quiz-question mb-10">
+                        <h3 class="text-xl font-semibold mb-4">Any dietary preferences or restrictions?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="none">
+                                <div class="flex items-center">
+                                    <i class="fas fa-check-circle text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">No Restrictions</h4>
+                                        <p class="text-sm text-gray-600">All wine styles are fine</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="organic">
+                                <div class="flex items-center">
+                                    <i class="fas fa-seedling text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Organic/Biodynamic</h4>
+                                        <p class="text-sm text-gray-600">Naturally produced wines</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="lowsulfite">
+                                <div class="flex items-center">
+                                    <i class="fas fa-allergy text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Low Sulfite</h4>
+                                        <p class="text-sm text-gray-600">Minimal preservatives</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="vegan">
+                                <div class="flex items-center">
+                                    <i class="fas fa-ban text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Vegan</h4>
+                                        <p class="text-sm text-gray-600">No animal products in processing</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Question 5 -->
+                    <div class="quiz-question mb-10">
+                        <h3 class="text-xl font-semibold mb-4">What's your budget range?</h3>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="budget">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dollar-sign text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Budget</h4>
+                                        <p class="text-sm text-gray-600">Under $15</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="moderate">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dollar-sign text-xl mr-1" style="color: var(--secondary);"></i>
+                                    <i class="fas fa-dollar-sign text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Moderate</h4>
+                                        <p class="text-sm text-gray-600">$15-$30</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="premium">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dollar-sign text-xl mr-1" style="color: var(--secondary);"></i>
+                                    <i class="fas fa-dollar-sign text-xl mr-1" style="color: var(--secondary);"></i>
+                                    <i class="fas fa-dollar-sign text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Premium</h4>
+                                        <p class="text-sm text-gray-600">$30-$50</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="quiz-option p-4 rounded-lg shadow-sm" data-value="luxury">
+                                <div class="flex items-center">
+                                    <i class="fas fa-dollar-sign text-xl mr-1" style="color: var(--secondary);"></i>
+                                    <i class="fas fa-dollar-sign text-xl mr-1" style="color: var(--secondary);"></i>
+                                    <i class="fas fa-dollar-sign text-xl mr-1" style="color: var(--secondary);"></i>
+                                    <i class="fas fa-dollar-sign text-xl mr-3" style="color: var(--secondary);"></i>
+                                    <div>
+                                        <h4 class="font-semibold">Luxury</h4>
+                                        <p class="text-sm text-gray-600">$50+</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mt-8">
+                    <button id="findWinesBtn" class="btn-primary flex items-center">
+                        <span>Find My Perfect Wines</span>
+                        <i class="fas fa-wine-bottle ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- AI Processing Section -->
+        <section id="section3" class="section mb-12">
+            <div class="card p-8 gradient-bg text-center">
+                <h2 class="text-3xl font-bold mb-6">Analyzing Your Taste Profile</h2>
+                <p class="text-lg mb-8">Our AI is working to find your perfect wine pairings...</p>
+                
+                <div class="flex justify-center mb-8">
+                    <div class="w-24 h-24 flex items-center justify-center rounded-full bg-primary pulsate">
+                        <i class="fas fa-wine-glass-alt text-3xl text-white"></i>
+                    </div>
+                </div>
+                
+                <div class="max-w-md mx-auto mb-8 bg-white rounded-lg p-4 shadow-sm">
+                    <div id="aiStatusUpdates" class="text-left">
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <p>Analyzing taste preferences...</p>
+                        </div>
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-check-circle text-green-500 mr-3"></i>
+                            <p>Matching with wine database...</p>
+                        </div>
+                        <div class="flex items-center mb-3">
+                            <i class="fas fa-spinner fa-spin text-primary mr-3"></i>
+                            <p>Considering regional specialties...</p>
+                        </div>
+                        <div class="flex items-center mb-3 text-gray-400">
+                            <i class="fas fa-circle mr-3"></i>
+                            <p>Evaluating price-quality ratio...</p>
+                        </div>
+                        <div class="flex items-center text-gray-400">
+                            <i class="fas fa-circle mr-3"></i>
+                            <p>Finalizing recommendations...</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <p class="text-sm text-gray-500 italic">This usually takes just a few moments</p>
+            </div>
+        </section>
+        
+        <!-- Wine Recommendations Section -->
+        <section id="section4" class="section mb-12">
+            <div class="card p-8 gradient-bg">
+                <h2 class="text-3xl font-bold mb-2 text-center">Your Perfect Wine Matches</h2>
+                <p class="text-lg mb-8 text-center">Based on your taste profile, here are your personalized recommendations</p>
+                
+                <div id="wineRecommendations" class="space-y-6">
+                    <!-- Wine cards will be dynamically added here -->
+                </div>
+                
+                <div class="flex justify-center mt-8">
+                    <button id="saveRatingsBtn" class="btn-secondary flex items-center">
+                        <span>Save My Preferences</span>
+                        <i class="fas fa-save ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Rating History Section -->
+        <section id="section5" class="section mb-12">
+            <div class="card p-8 gradient-bg">
+                <h2 class="text-3xl font-bold mb-2 text-center">Your Wine Journey</h2>
+                <p class="text-lg mb-8 text-center">Track your wine preferences and discover new favorites</p>
+                
+                <div class="mb-8">
+                    <h3 class="text-xl font-semibold mb-4">Your Taste Profile</h3>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold mb-2 flex items-center">
+                                <i class="fas fa-heart text-primary mr-2"></i>
+                                Preferred Wine Types
+                            </h4>
+                            <div id="preferredWineTypes">
+                                <span class="wine-badge mr-2 mb-2 inline-block">Red Blends</span>
+                                <span class="wine-badge mr-2 mb-2 inline-block">Pinot Noir</span>
+                                <span class="wine-badge mr-2 mb-2 inline-block">Chardonnay</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold mb-2 flex items-center">
+                                <i class="fas fa-map-marker-alt text-primary mr-2"></i>
+                                Favorite Regions
+                            </h4>
+                            <div id="favoriteRegions">
+                                <span class="wine-badge mr-2 mb-2 inline-block">Tuscany</span>
+                                <span class="wine-badge mr-2 mb-2 inline-block">Napa Valley</span>
+                                <span class="wine-badge mr-2 mb-2 inline-block">Burgundy</span>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-white p-4 rounded-lg shadow-sm">
+                            <h4 class="font-semibold mb-2 flex items-center">
+                                <i class="fas fa-utensils text-primary mr-2"></i>
+                                Ideal Pairings
+                            </h4>
+                            <div id="idealPairings">
+                                <span class="wine-badge mr-2 mb-2 inline-block">Steak</span>
+                                <span class="wine-badge mr-2 mb-2 inline-block">Soft Cheese</span>
+                                <span class="wine-badge mr-2 mb-2 inline-block">Salmon</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <h3 class="text-xl font-semibold mb-4">Your Recent Ratings</h3>
+                    <div id="ratingHistory" class="space-y-4">
+                        <!-- Will be populated dynamically -->
+                    </div>
+                </div>
+                
+                <div class="flex justify-center mt-8">
+                    <button id="startOverBtn" class="btn-primary flex items-center">
+                        <span>Start New Recommendation</span>
+                        <i class="fas fa-sync-alt ml-2"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Footer -->
+        <footer class="text-center mt-8 py-6 border-t border-gray-200">
+            <p>VinAI Match - AI-Powered Wine Pairing System</p>
+            <p class="text-sm text-gray-500 mt-2">© 2023 VinAI Match. All rights reserved.</p>
+        </footer>
+    </div>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Variables
+            const sections = document.querySelectorAll('.section');
+            const navDots = document.querySelectorAll('.nav-dot');
+            const progressBar = document.getElementById('progressBar');
+            let userProfile = {
+                meal: '',
+                flavor: '',
+                sweetness: '',
+                dietary: '',
+                budget: ''
+            };
+            let currentRatings = [];
+            
+            // Wine Data
+            const wineDatabase = [
+                {
+                    id: 1,
+                    name: "Château Margaux 2015",
+                    type: "Red",
+                    region: "Bordeaux, France",
+                    grapes: "Cabernet Sauvignon, Merlot",
+                    description: "Elegant and powerful with notes of black currant, violets, and cedar. Full-bodied with silky tannins and a long finish.",
+                    price: "$$$",
+                    pairings: "Prime rib, lamb chops, aged cheeses",
+                    image: "bordeaux-red.jpg",
+                    tags: ["bold", "meat", "premium", "luxury"]
+                },
+                {
+                    id: 2,
+                    name: "Cloudy Bay Sauvignon Blanc 2022",
+                    type: "White",
+                    region: "Marlborough, New Zealand",
+                    grapes: "Sauvignon Blanc",
+                    description: "Vibrant and crisp with intense flavors of passion fruit, lime, and fresh herbs. Refreshing acidity and mineral notes.",
+                    price: "$$",
+                    pairings: "Seafood, goat cheese, asparagus",
+                    image: "new-zealand-white.jpg",
+                    tags: ["fruity", "seafood", "moderate"]
+                },
+                {
+                    id: 3,
+                    name: "Antinori Tignanello 2018",
+                    type: "Red",
+                    region: "Tuscany, Italy",
+                    grapes: "Sangiovese, Cabernet Sauvignon",
+                    description: "Rich and complex with flavors of black cherry, tobacco, and spice. Perfectly balanced with a velvety texture.",
+                    price: "$$$",
+                    pairings: "Grilled steak, wild mushroom risotto",
+                    image: "tuscany-red.jpg",
+                    tags: ["bold", "earthy", "meat", "premium"]
+                },
+                {
+                    id: 4,
+                    name: "Domaine Leflaive Puligny-Montrachet",
+                    type: "White",
+                    region: "Burgundy, France",
+                    grapes: "Chardonnay",
+                    description: "Elegant and refined with notes of white peach, hazelnut, and delicate oak. Mineral-driven with perfect acidity.",
+                    price: "$$$$",
+                    pairings: "Lobster, roast chicken, creamy sauces",
+                    image: "burgundy-white.jpg",
+                    tags: ["light", "poultry", "luxury"]
+                },
+                {
+                    id: 5,
+                    name: "Domaine Tempier Bandol Rosé",
+                    type: "Rosé",
+                    region: "Provence, France",
+                    grapes: "Mourvèdre, Grenache, Cinsault",
+                    description: "Dry and complex with notes of wild strawberry, herbs, and saline minerality. Structured yet delicate.",
+                    price: "$$",
+                    pairings: "Mediterranean cuisine, grilled fish, ratatouille",
+                    image: "provence-rose.jpg",
+                    tags: ["light", "seafood", "moderate", "organic"]
+                },
+                {
+                    id: 6,
+                    name: "Ridge Vineyards Monte Bello",
+                    type: "Red",
+                    region: "Santa Cruz Mountains, California",
+                    grapes: "Cabernet Sauvignon, Merlot, Petit Verdot",
+                    description: "Powerful yet elegant with notes of blackberry, cassis, and graphite. Structured tannins with decades of aging potential.",
+                    price: "$$$",
+                    pairings: "Dry-aged steak, lamb, hearty stews",
+                    image: "california-red.jpg",
+                    tags: ["bold", "meat", "premium", "organic"]
+                },
+                {
+                    id: 7,
+                    name: "Donnhoff Riesling Kabinett",
+                    type: "White",
+                    region: "Nahe, Germany",
+                    grapes: "Riesling",
+                    description: "Delicate and nuanced with perfect balance between sweetness and acidity. Notes of green apple, white peach, and slate.",
+                    price: "$$",
+                    pairings: "Spicy Asian cuisine, pork dishes, soft cheeses",
+                    image: "german-riesling.jpg",
+                    tags: ["fruity", "sweet", "moderate", "vegan"]
+                },
+                {
+                    id: 8,
+                    name: "Bodegas Muga Prado Enea Gran Reserva",
+                    type: "Red",
+                    region: "Rioja, Spain",
+                    grapes: "Tempranillo",
+                    description: "Traditional and complex with notes of dark berries, leather, tobacco, and vanilla. Elegant and refined.",
+                    price: "$$$",
+                    pairings: "Roast lamb, game meats, aged cheeses",
+                    image: "rioja-red.jpg",
+                    tags: ["earthy", "meat", "premium"]
+                },
+                {
+                    id: 9,
+                    name: "Bründlmayer Grüner Veltliner",
+                    type: "White",
+                    region: "Kamptal, Austria",
+                    grapes: "Grüner Veltliner",
+                    description: "Crisp and lively with notes of green apple, white pepper, and herbs. Mineral-driven with excellent texture.",
+                    price: "$$",
+                    pairings: "Vegetable dishes, schnitzel, fresh salads",
+                    image: "austria-white.jpg",
+                    tags: ["light", "vegetarian", "moderate", "organic"]
+                },
+                {
+                    id: 10,
+                    name: "Chateau Musar Red",
+                    type: "Red",
+                    region: "Bekaa Valley, Lebanon",
+                    grapes: "Cabernet Sauvignon, Cinsault, Carignan",
+                    description: "Unique and complex with notes of red fruits, spices, and cedar. Natural winemaking with distinctive character.",
+                    price: "$$",
+                    pairings: "Middle Eastern cuisine, grilled meats, spiced dishes",
+                    image: "lebanon-red.jpg",
+                    tags: ["earthy", "meat", "moderate", "organic", "vegan"]
+                },
+                {
+                    id: 11,
+                    name: "Caymus Special Selection Cabernet Sauvignon",
+                    type: "Red",
+                    region: "Napa Valley, California",
+                    grapes: "Cabernet Sauvignon",
+                    description: "Rich and opulent with intense black fruit, mocha, and vanilla. Velvety texture with a long, powerful finish.",
+                    price: "$$$$",
+                    pairings: "Prime rib, filet mignon, dark chocolate",
+                    image: "napa-cabernet.jpg",
+                    tags: ["bold", "meat", "luxury"]
+                },
+                {
+                    id: 12,
+                    name: "Veuve Clicquot Yellow Label",
+                    type: "Sparkling",
+                    region: "Champagne, France",
+                    grapes: "Pinot Noir, Chardonnay, Pinot Meunier",
+                    description: "Classic and balanced with notes of apple, brioche, and citrus. Crisp acidity with fine bubbles.",
+                    price: "$$$",
+                    pairings: "Oysters, fried foods, celebrations",
+                    image: "champagne.jpg",
+                    tags: ["light", "seafood", "premium"]
+                },
+                {
+                    id: 13,
+                    name: "Bodega Catena Zapata Malbec Alta",
+                    type: "Red",
+                    region: "Mendoza, Argentina",
+                    grapes: "Malbec",
+                    description: "Rich and fruit-forward with notes of blackberry, violet, and chocolate. Smooth tannins with a spicy finish.",
+                    price: "$$",
+                    pairings: "Grilled steak, empanadas, barbecue",
+                    image: "argentina-malbec.jpg",
+                    tags: ["fruity", "meat", "moderate"]
+                },
+                {
+                    id: 14,
+                    name: "Felton Road Pinot Noir",
+                    type: "Red",
+                    region: "Central Otago, New Zealand",
+                    grapes: "Pinot Noir",
+                    description: "Elegant and silky with notes of cherry, raspberry, and subtle earthy undertones. Balanced and refined.",
+                    price: "$$$",
+                    pairings: "Duck, salmon, mushroom dishes",
+                    image: "new-zealand-pinot.jpg",
+                    tags: ["light", "fruity", "poultry", "seafood", "premium", "organic"]
+                },
+                {
+                    id: 15,
+                    name: "Domaine Weinbach Gewurztraminer",
+                    type: "White",
+                    region: "Alsace, France",
+                    grapes: "Gewurztraminer",
+                    description: "Aromatic and exotic with notes of lychee, rose petal, and ginger. Rich texture with a touch of sweetness.",
+                    price: "$$",
+                    pairings: "Spicy Asian cuisine, Munster cheese, foie gras",
+                    image: "alsace-white.jpg",
+                    tags: ["fruity", "medium", "vegetarian", "moderate", "organic"]
+                }
+            ];
+            
+            const ratingHistory = [
+                {
+                    id: 1,
+                    name: "Cloudy Bay Sauvignon Blanc 2022",
+                    rating: 5,
+                    date: "Oct 15, 2023",
+                    notes: "Perfectly paired with grilled sea bass"
+                },
+                {
+                    id: 3,
+                    name: "Antinori Tignanello 2018",
+                    rating: 4,
+                    date: "Sep 30, 2023",
+                    notes: "Excellent with steak dinner"
+                },
+                {
+                    id: 5,
+                    name: "Domaine Tempier Bandol Rosé",
+                    rating: 3,
+                    date: "Aug 12, 2023",
+                    notes: "Nice summer wine, but a bit too dry for me"
+                }
+            ];
+            
+            // Event Listeners
+            document.getElementById('startBtn').addEventListener('click', function() {
+                showSection(2);
+            });
+            
+            document.getElementById('findWinesBtn').addEventListener('click', function() {
+                // Gather user selections
+                userProfile.meal = document.querySelector('.quiz-question:nth-child(1) .quiz-option.selected')?.dataset.value || '';
+                userProfile.flavor = document.querySelector('.quiz-question:nth-child(2) .quiz-option.selected')?.dataset.value || '';
+                userProfile.sweetness = document.querySelector('.quiz-question:nth-child(3) .quiz-option.selected')?.dataset.value || '';
+                userProfile.dietary = document.querySelector('.quiz-question:nth-child(4) .quiz-option.selected')?.dataset.value || '';
+                userProfile.budget = document.querySelector('.quiz-question:nth-child(5) .quiz-option.selected')?.dataset.value || '';
+                
+                // Show processing section
+                showSection(3);
+                
+                // Simulate AI processing
+                simulateAIProcessing();
+            });
+            
+            document.getElementById('saveRatingsBtn').addEventListener('click', function() {
+                showSection(5);
+                populateRatingHistory();
+            });
+            
+            document.getElementById('startOverBtn').addEventListener('click', function() {
+                resetQuiz();
+                showSection(1);
+            });
+            
+            // Add click event for quiz options
+            document.querySelectorAll('.quiz-option').forEach(option => {
+                option.addEventListener('click', function() {
+                    // Remove selected class from siblings
+                    const siblings = this.parentNode.querySelectorAll('.quiz-option');
+                    siblings.forEach(sib => sib.classList.remove('selected'));
+                    
+                    // Add selected class to clicked option
+                    this.classList.add('selected');
+                });
+            });
+            
+            // Functions
+            function showSection(sectionNumber) {
+                // Hide all sections
+                sections.forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show the selected section
+                document.getElementById(`section${sectionNumber}`).classList.add('active');
+                
+                // Update progress bar
+                const progress = (sectionNumber - 1) * 25;
+                progressBar.style.width = `${progress}%`;
+                
+                // Update nav dots
+                navDots.forEach(dot => {
+                    dot.classList.remove('active');
+                });
+                document.querySelector(`.nav-dot[data-section="${sectionNumber}"]`).classList.add('active');
+                
+                // Scroll to top
+                window.scrollTo(0, 0);
+            }
+            
+            function simulateAIProcessing() {
+                const statusItems = document.querySelectorAll('#aiStatusUpdates div');
+                let currentItem = 2; // Start at the third item (index 2)
+                
+                const interval = setInterval(() => {
+                    if (currentItem < statusItems.length) {
+                        // Update current item to "in progress"
+                        statusItems[currentItem].querySelector('i').classList.remove('fa-circle');
+                        statusItems[currentItem].querySelector('i').classList.add('fa-spinner', 'fa-spin', 'text-primary');
+                        statusItems[currentItem].querySelector('p').classList.remove('text-gray-400');
+                        
+                        // Update previous item to "completed"
+                        if (currentItem > 0) {
+                            statusItems[currentItem - 1].querySelector('i').classList.remove('fa-spinner', 'fa-spin', 'text-primary');
+                            statusItems[currentItem - 1].querySelector('i').classList.add('fa-check-circle', 'text-green-500');
+                        }
+                        
+                        currentItem++;
+                    } else {
+                        // Update the last item to "completed"
+                        statusItems[statusItems.length - 1].querySelector('i').classList.remove('fa-spinner', 'fa-spin', 'text-primary');
+                        statusItems[statusItems.length - 1].querySelector('i').classList.add('fa-check-circle', 'text-green-500');
+                        statusItems[statusItems.length - 1].querySelector('p').classList.remove('text-gray-400');
+                        
+                        clearInterval(interval);
+                        
+                        // After a short delay, show recommendations
+                        setTimeout(() => {
+                            generateWineRecommendations();
+                            showSection(4);
+                        }, 1000);
+                    }
+                }, 1000);
+            }
+            
+            function generateWineRecommendations() {
+                // Filter wines based on user profile
+                let matchedWines = wineDatabase.filter(wine => {
+                    // Create a score for each wine
+                    let score = 0;
+                    
+                    // Check for meal match
+                    if (wine.tags.includes(userProfile.meal)) score += 2;
+                    
+                    // Check for flavor match
+                    if (wine.tags.includes(userProfile.flavor)) score += 2;
+                    
+                    // Check for sweetness match
+                    if (wine.tags.includes(userProfile.sweetness)) score += 1;
+                    
+                    // Check for dietary match
+                    if (userProfile.dietary !== 'none' && wine.tags.includes(userProfile.dietary)) score += 1;
+                    
+                    // Check for budget match
+                    if (wine.tags.includes(userProfile.budget)) score += 1;
+                    
+                    return score >= 2; // At least some match
+                });
+                
+                // If no matches, use some default recommendations
+                if (matchedWines.length === 0) {
+                    matchedWines = wineDatabase.slice(0, 4);
+                }
+                
+                // Limit to top 4 recommendations
+                matchedWines = matchedWines.slice(0, 4);
+                
+                // Generate HTML for wine recommendations
+                const recommendationsContainer = document.getElementById('wineRecommendations');
+                recommendationsContainer.innerHTML = '';
+                
+                matchedWines.forEach(wine => {
+                    const wineTypeClass = `wine-${wine.type.toLowerCase()}`;
+                    const wineCard = document.createElement('div');
+                    wineCard.className = `wine-card ${wineTypeClass} p-6 rounded-lg shadow-md mb-6 relative`;
+                    wineCard.innerHTML = `
+                        <div class="flex flex-col md:flex-row">
+                            <div class="md:w-3/4 pr-4">
+                                <div class="flex justify-between items-start mb-3">
+                                    <h3 class="text-2xl font-bold">${wine.name}</h3>
+                                    <span class="text-sm font-semibold text-primary">${wine.price}</span>
+                                </div>
+                                <div class="mb-4">
+                                    <span class="wine-badge mr-2">${wine.type}</span>
+                                    <span class="wine-region text-sm">${wine.region}</span>
+                                </div>
+                                <p class="mb-4 text-gray-600">${wine.description}</p>
+                                <div class="mb-4">
+                                    <h4 class="font-semibold mb-1">Grapes:</h4>
+                                    <p>${wine.grapes}</p>
+                                </div>
+                                <div>
+                                    <h4 class="font-semibold mb-1">Perfect Pairings:</h4>
+                                    <p>${wine.pairings}</p>
+                                </div>
+                            </div>
+                            <div class="md:w-1/4 mt-4 md:mt-0">
+                                <div class="bg-gray-100 rounded-lg p-4 h-full">
+                                    <h4 class="font-semibold mb-3 text-center">Rate This Pairing</h4>
+                                    <div class="flex justify-center space-x-2 mb-4">
+                                        <div class="rating-stars flex" data-wine-id="${wine.id}">
+                                            <i class="fas fa-star rating-star" data-rating="1"></i>
+                                            <i class="fas fa-star rating-star" data-rating="2"></i>
+                                            <i class="fas fa-star rating-star" data-rating="3"></i>
+                                            <i class="fas fa-star rating-star" data-rating="4"></i>
+                                            <i class="fas fa-star rating-star" data-rating="5"></i>
+                                        </div>
+                                    </div>
+                                    <div class="flex justify-center space-x-4">
+                                        <div class="feedback-btn" data-wine-id="${wine.id}" data-feedback="like">
+                                            <i class="fas fa-thumbs-up text-xl"></i>
+                                        </div>
+                                        <div class="feedback-btn" data-wine-id="${wine.id}" data-feedback="dislike">
+                                            <i class="fas fa-thumbs-down text-xl"></i>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    recommendationsContainer.appendChild(wineCard);
+                });
+                
+                // Add event listeners for rating stars
+                document.querySelectorAll('.rating-star').forEach(star => {
+                    star.addEventListener('click', function() {
+                        const ratingValue = parseInt(this.dataset.rating);
+                        const wineId = parseInt(this.closest('.rating-stars').dataset.wineId);
+                        const stars = this.closest('.rating-stars').querySelectorAll('.rating-star');
+                        
+                        // Reset all stars
+                        stars.forEach(s => {
+                            s.style.color = '#ccc';
+                        });
+                        
+                        // Color stars up to selected rating
+                        for (let i = 0; i < ratingValue; i++) {
+                            stars[i].style.color = '#D4AF37';
+                        }
+                        
+                        // Save rating
+                        const wine = wineDatabase.find(w => w.id === wineId);
+                        currentRatings.push({
+                            id: wineId,
+                            name: wine.name,
+                            rating: ratingValue,
+                            date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+                            notes: "Added from recommendations"
+                        });
+                    });
+                });
+                
+                // Add event listeners for feedback buttons
+                document.querySelectorAll('.feedback-btn').forEach(btn => {
+                    btn.addEventListener('click', function() {
+                        const wineId = parseInt(this.dataset.wineId);
+                        const feedback = this.dataset.feedback;
+                        const feedbackBtns = document.querySelectorAll(`.feedback-btn[data-wine-id="${wineId}"]`);
+                        
+                        // Reset both buttons
+                        feedbackBtns.forEach(b => {
+                            b.classList.remove('active');
+                        });
+                        
+                        // Activate clicked button
+                        this.classList.add('active');
+                        
+                        // Save feedback
+                        // In a real app, this would send data to a server
+                        console.log(`Wine ID ${wineId} received ${feedback} feedback`);
+                    });
+                });
+            }
+            
+            function populateRatingHistory() {
+                const ratingHistoryContainer = document.getElementById('ratingHistory');
+                ratingHistoryContainer.innerHTML = '';
+                
+                // Combine current ratings with history
+                const allRatings = [...ratingHistory, ...currentRatings];
+                
+                if (allRatings.length === 0) {
+                    ratingHistoryContainer.innerHTML = '<p class="text-center text-gray-500 italic">No ratings yet. Start by rating some wine recommendations!</p>';
+                    return;
+                }
+                
+                allRatings.forEach(rating => {
+                    const ratingCard = document.createElement('div');
+                    ratingCard.className = 'bg-white p-4 rounded-lg shadow-sm';
+                    
+                    // Generate stars HTML
+                    let starsHtml = '';
+                    for (let i = 1; i <= 5; i++) {
+                        const starClass = i <= rating.rating ? 'text-yellow-500' : 'text-gray-300';
+                        starsHtml += `<i class="fas fa-star ${starClass}"></i>`;
+                    }
+                    
+                    ratingCard.innerHTML = `
+                        <div class="flex justify-between items-start">
+                            <div>
+                                <h4 class="font-semibold">${rating.name}</h4>
+                                <p class="text-sm text-gray-500">${rating.date}</p>
+                            </div>
+                            <div class="flex">
+                                ${starsHtml}
+                            </div>
+                        </div>
+                        <p class="mt-2 text-gray-600">${rating.notes}</p>
+                    `;
+                    
+                    ratingHistoryContainer.appendChild(ratingCard);
+                });
+            }
+            
+            function resetQuiz() {
+                // Reset quiz options
+                document.querySelectorAll('.quiz-option').forEach(option => {
+                    option.classList.remove('selected');
+                });
+                
+                // Reset user profile
+                userProfile = {
+                    meal: '',
+                    flavor: '',
+                    sweetness: '',
+                    dietary: '',
+                    budget: ''
+                };
+                
+                // Reset AI processing display
+                const statusItems = document.querySelectorAll('#aiStatusUpdates div');
+                statusItems.forEach((item, index) => {
+                    if (index < 2) {
+                        item.querySelector('i').className = 'fas fa-check-circle text-green-500 mr-3';
+                        item.querySelector('p').classList.remove('text-gray-400');
+                    } else {
+                        item.querySelector('i').className = 'fas fa-circle mr-3';
+                        item.querySelector('p').classList.add('text-gray-400');
+                    }
+                });
+            }
+            
+            // Navigation dot click handlers
+            navDots.forEach(dot => {
+                dot.addEventListener('click', function() {
+                    const sectionNumber = parseInt(this.dataset.section);
+                    showSection(sectionNumber);
+                });
+            });
+        });
+    </script>
+</body>
+</html>
